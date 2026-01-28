@@ -1,0 +1,94 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique // Clerk user ID
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  items    Item[]    // Items this user has listed
+  bookings Booking[] // Bookings this user has made
+
+  @@index([clerkId])
+}
+
+model Item {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  category    Category   @default(OTHER)
+  imageUrl    String?
+  available   Boolean    @default(true)
+  condition   Condition  @default(GOOD)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  ownerId  String
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([available])
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  status    BookingStatus @default(PENDING)
+  startDate DateTime
+  endDate   DateTime
+  message   String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  itemId     String
+  item       Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  borrowerId String
+  borrower   User   @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([borrowerId])
+  @@index([status])
+}
+
+enum Category {
+  POWER_TOOLS
+  HAND_TOOLS
+  GARDEN
+  KITCHEN
+  CLEANING
+  SPORTS
+  ELECTRONICS
+  OTHER
+}
+
+enum Condition {
+  NEW
+  EXCELLENT
+  GOOD
+  FAIR
+  WORN
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RETURNED
+  CANCELLED
+}
