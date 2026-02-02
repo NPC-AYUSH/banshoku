@@ -60,7 +60,7 @@ export type ItemWithOwner = Item & {
 
 // Item with full relations
 export type ItemWithRelations = Item & {
-  owner: Pick<User, "id" | "name" | "imageUrl" | "email">;
+  owner: Pick<User, "id" | "clerkId" | "name" | "imageUrl" | "email">;
   bookings: BookingWithBorrower[];
 };
 
@@ -77,7 +77,7 @@ export type BookingWithRelations = Booking & {
 
 // Booking for item owner view (includes borrower info)
 export type BookingForOwner = Booking & {
-  item: Pick<Item, "id" | "name" | "imageUrl">;
+  item: Pick<Item, "id" | "name" | "imageUrl" | "category">;
   borrower: Pick<User, "id" | "name" | "imageUrl" | "email">;
 };
 
